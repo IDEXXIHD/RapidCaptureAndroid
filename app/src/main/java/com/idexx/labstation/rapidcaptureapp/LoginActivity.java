@@ -13,8 +13,10 @@ import android.widget.EditText;
 import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 import com.idexx.labstation.rapidcaptureapp.util.GeneralUtil;
+import com.idexx.labstation.rapidcaptureapp.util.network.NetworkAccessor;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
 import java.util.HashMap;
@@ -133,17 +135,18 @@ public class LoginActivity extends AppCompatActivity
             @Override
             protected Boolean doInBackground(UserLoginDto... params)
             {
-                Map resp = NetworkActions.login(userLoginDto);
-                if(resp != null && resp.containsKey("token"))
+                LoginResponseDto resp = NetworkActions.login(userLoginDto);
+                if(resp != null && resp.getToken() != null)
                 {
                     List<Map<String, Object>> existingUsers = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).searchByUserName(userLoginDto.getUsername());
                     Map<String, Object> userEntity = existingUsers != null && existingUsers.size() > 0
                             ? existingUsers.get(0)
                             : new HashMap<String, Object>();
                     userEntity.put(UserSettingsContract.USER_COLUMN, userLoginDto.getUsername());
-                    userEntity.put(UserSettingsContract.TOKEN_COLUMN, resp.get("token"));
+                    userEntity.put(UserSettingsContract.TOKEN_COLUMN, resp.getToken());
                     int key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).insertOrUpdate(userEntity);
                     DBHelper.getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
+                    NetworkAccessor.getInstance().setCurrentToken(resp.getToken());
                     return true;
                 }
                 else

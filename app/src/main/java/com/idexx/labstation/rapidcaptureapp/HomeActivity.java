@@ -1,22 +1,38 @@
 package com.idexx.labstation.rapidcaptureapp;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
+import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity
 {
-    private Button signoutButton;
-    private TextView welcomeText;
+    private Map<String, Object> activeUser;
+    private List<ClinicDto> clinics;
+
+    private TextView welcomeLabel;
+    private ListView clinicsListView;
+
+    private ArrayAdapter<ClinicDto> clinicsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -24,34 +40,102 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         bindFields();
-        addListeners();
+        populateLists();
+        findActiveUser();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_action_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.homeMenuSignoutOption:
+                signout();
+                return true;
+            case R.id.homeMenuCreateClinic:
+                goToCreateClinic();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void bindFields()
     {
-        signoutButton = (Button) findViewById(R.id.homeSignoutButton);
-        welcomeText = (TextView) findViewById(R.id.homeWelcomeLabel);
+        welcomeLabel = (TextView) findViewById(R.id.homeWelcomeTextView);
+        clinicsListView = (ListView) findViewById(R.id.homeClinicsListView);
 
-        findActiveUser();
+        clinicsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        clinicsListView.setAdapter(clinicsAdapter);
     }
 
-    private void addListeners()
+    private void populateLists()
     {
-        signoutButton.setOnClickListener(new View.OnClickListener()
+        updateClinics();
+    }
+
+    private void updateClinics()
+    {
+        new AsyncTask<Object, Object, Object>()
         {
             @Override
-            public void onClick(View v)
+            protected Object doInBackground(Object... params)
             {
-                signout();
+                clinics = NetworkActions.getClinics();
+                Collections.sort(clinics, new Comparator<ClinicDto>()
+                {
+                    @Override
+                    public int compare(ClinicDto lhs, ClinicDto rhs)
+                    {
+                        return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                    }
+                });
+                return null;
             }
-        });
+
+            @Override
+            protected void onPostExecute(Object obj)
+            {
+                clinicsAdapter.clear();
+                clinicsAdapter.addAll(clinics);
+                clinicsAdapter.notifyDataSetChanged();
+            }
+        }.execute();
     }
 
     private void findActiveUser()
     {
-        Map<String, Object> activeUser = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers().get(0);
-        String user = (String) activeUser.get(UserSettingsContract.USER_COLUMN);
-        welcomeText.setText("Welcome " + user);
+        new AsyncTask<Object, Object, String>()
+        {
+            @Override
+            protected String doInBackground(Object... params)
+            {
+
+                Map<String, Object> activeUser = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers().get(0);
+                HomeActivity.this.activeUser = activeUser;
+                return (String) activeUser.get(UserSettingsContract.USER_COLUMN);
+            }
+
+            @Override
+            protected void onPostExecute(String s)
+            {
+                welcomeLabel.setText("Welcome Back, " + s);
+            }
+        }.execute();
+    }
+
+    private void goToCreateClinic()
+    {
+        Intent intent = new Intent(this, CreateClinicActivity.class);
+        startActivity(intent);
     }
 
     private void signout()

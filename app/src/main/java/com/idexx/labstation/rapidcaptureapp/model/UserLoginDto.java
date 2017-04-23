@@ -3,7 +3,7 @@ package com.idexx.labstation.rapidcaptureapp.model;
 /**
  * Created by mhansen on 4/21/2017.
  */
-public class UserLoginDto
+public class UserLoginDto extends BaseDto
 {
     private String username;
     private String password;

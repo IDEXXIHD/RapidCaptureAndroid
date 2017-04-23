@@ -1,11 +1,18 @@
 package com.idexx.labstation.rapidcaptureapp.util.network;
 import android.util.Log;
 
+import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
+import com.idexx.labstation.rapidcaptureapp.model.CreateClinicDto;
+import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
 import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -17,19 +24,76 @@ public class NetworkActions
     private static final String AUTH_HEADER = "Authorization";
     private static final String JWT = "JWT ";
 
-    public static Map login(UserLoginDto userLoginDto)
+    public static LoginResponseDto login(UserLoginDto userLoginDto)
     {
         try
         {
-            return NetworkAccessor.getInstance().getWebTarget()
+            Response resp = NetworkAccessor.getInstance().getWebTarget()
                     .path(NetworkPaths.AUTH_PATH)
                     .request()
-                    .post(Entity.entity(userLoginDto, MediaType.APPLICATION_JSON_TYPE))
-                    .readEntity(Map.class);
+                    .post(Entity.entity(userLoginDto, MediaType.APPLICATION_JSON_TYPE));
+            if(resp.getStatus() == Response.Status.OK.getStatusCode())
+            {
+                return resp.readEntity(LoginResponseDto.class);
+            }
+            else
+            {
+                return null;
+            }
         }
         catch (Exception e)
         {
             Log.e(NetworkActions.class.getSimpleName(), "Error logging in", e);
+            return null;
+        }
+    }
+
+    public static ClinicDto createClinic(CreateClinicDto createClinicDto)
+    {
+        try
+        {
+            Response resp = NetworkAccessor.getInstance().getWebTarget()
+                    .path(NetworkPaths.CLINICS_PATH)
+                    .request()
+                    .header(AUTH_HEADER, JWT + NetworkAccessor.getInstance().getCurrentToken())
+                    .post(Entity.entity(createClinicDto, MediaType.APPLICATION_JSON_TYPE));
+            if(resp.getStatus() == Response.Status.OK.getStatusCode())
+            {
+                return resp.readEntity(ClinicDto.class);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e(NetworkActions.class.getSimpleName(), "Error creating clinic", e);
+            return null;
+        }
+    }
+
+    public static List<ClinicDto> getClinics()
+    {
+        try
+        {
+            Response resp = NetworkAccessor.getInstance().getWebTarget()
+                    .path(NetworkPaths.CLINICS_PATH)
+                    .request()
+                    .header(AUTH_HEADER, JWT + NetworkAccessor.getInstance().getCurrentToken())
+                    .get();
+            if(resp.getStatus() == Response.Status.OK.getStatusCode())
+            {
+                return NetworkAccessor.getMapper().readValue(resp.readEntity(String.class), NetworkAccessor.getMapper().getTypeFactory().constructCollectionType(List.class, ClinicDto.class));
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e(NetworkActions.class.getSimpleName(), "Error getting clinics", e);
             return null;
         }
     }
