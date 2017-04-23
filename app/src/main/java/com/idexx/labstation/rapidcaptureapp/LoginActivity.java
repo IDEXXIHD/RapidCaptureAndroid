@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
@@ -24,12 +23,10 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity
 {
-    private LinearLayout loginWrapper;
     private Button loginButton;
+    private Button signupButton;
     private EditText userField;
     private EditText passwordField;
-
-    private String activeUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -39,14 +36,16 @@ public class LoginActivity extends AppCompatActivity
         setContentView(R.layout.activity_login);
         bindFields();
         bindHandlers();
+        checkForActiveUser();
     }
+
 
     private void bindFields()
     {
-        loginWrapper = (LinearLayout) findViewById(R.id.launchLoginWrapper);
-        loginButton = (Button) findViewById(R.id.launchLoginButton);
-        userField = (EditText) findViewById(R.id.launchUserInputField);
-        passwordField = (EditText) findViewById(R.id.launcPasswordInputField);
+        loginButton = (Button) findViewById(R.id.loginLoginButton);
+        signupButton = (Button) findViewById(R.id.loginSignupButton);
+        userField = (EditText) findViewById(R.id.loginUserEditText);
+        passwordField = (EditText) findViewById(R.id.loginPasswordEditText);
     }
 
     private void bindHandlers()
@@ -59,6 +58,41 @@ public class LoginActivity extends AppCompatActivity
                 checkLoginFields();
             }
         });
+        signupButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onSignup();
+            }
+        });
+    }
+
+    private void checkForActiveUser()
+    {
+        new AsyncTask<Object, Object, Map<String, Object>>()
+        {
+            @Override
+            protected Map<String, Object> doInBackground(Object... params)
+            {
+                List<Map<String, Object>> activeUsers = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers();
+                if(activeUsers != null && activeUsers.size() > 0)
+                {
+                    return activeUsers.get(0);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Map<String, Object> user)
+            {
+                if(user != null)
+                {
+                    userField.setText((String)user.get(UserSettingsContract.USER_COLUMN));
+                    passwordField.requestFocus();
+                }
+            }
+        }.execute();
     }
 
     private void checkLoginFields()
@@ -110,7 +144,6 @@ public class LoginActivity extends AppCompatActivity
                     userEntity.put(UserSettingsContract.TOKEN_COLUMN, resp.get("token"));
                     int key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).insertOrUpdate(userEntity);
                     DBHelper.getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
-                    activeUserName = userLoginDto.getUsername();
                     return true;
                 }
                 else
@@ -138,6 +171,12 @@ public class LoginActivity extends AppCompatActivity
             }
         };
         loginTask.execute(userLoginDto);
+    }
+
+    private void onSignup()
+    {
+        Intent intent = new Intent(this, CreateUserActivity.class);
+        startActivity(intent);
     }
 
     private void onSuccessfulLogin()

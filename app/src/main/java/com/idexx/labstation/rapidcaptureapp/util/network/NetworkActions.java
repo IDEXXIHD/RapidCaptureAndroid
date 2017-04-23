@@ -1,6 +1,7 @@
 package com.idexx.labstation.rapidcaptureapp.util.network;
 import android.util.Log;
 
+import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 
 import java.util.Map;
@@ -33,7 +34,24 @@ public class NetworkActions
         }
     }
 
-    public static TokenValidation validateToken(String token)
+    public static ResponseStatus createUser(NewUserDto user)
+    {
+        try
+        {
+            Response resp = NetworkAccessor.getInstance().getWebTarget()
+                    .path(NetworkPaths.NEW_USER_PATH)
+                    .request()
+                    .post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE));
+            return resp.getStatus() == Response.Status.OK.getStatusCode() ? ResponseStatus.SUCCESS : ResponseStatus.FAILURE;
+        }
+        catch (Exception e)
+        {
+            Log.e(NetworkActions.class.getSimpleName(), "Error creating new user", e);
+            return ResponseStatus.NOT_AVAILABLE;
+        }
+    }
+
+    public static ResponseStatus validateToken(String token)
     {
         //There should be a token validation endpoint on the RapidCapture webapp
         try
@@ -43,17 +61,16 @@ public class NetworkActions
                     .request()
                     .header(AUTH_HEADER, JWT + token)
                     .get();
-            boolean success = resp.getStatus() == Response.Status.OK.getStatusCode();
-            return success ? TokenValidation.SUCCESS : TokenValidation.FAILURE;
+            return resp.getStatus() == Response.Status.OK.getStatusCode() ? ResponseStatus.SUCCESS : ResponseStatus.FAILURE;
         }
         catch (Exception e)
         {
             Log.e(NetworkActions.class.getSimpleName(), "Error validating token", e);
-            return TokenValidation.NOT_AVAILABLE;
+            return ResponseStatus.NOT_AVAILABLE;
         }
     }
 
-    public enum TokenValidation
+    public enum ResponseStatus
     {
         SUCCESS,
         FAILURE,

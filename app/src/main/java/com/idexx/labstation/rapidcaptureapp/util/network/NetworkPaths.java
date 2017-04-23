@@ -8,5 +8,6 @@ public class NetworkPaths
     public static final String API_CONTEXT = "api/";
 
     public static final String AUTH_PATH = "auth/";
-    public static final String CLINICS_PATH = API_CONTEXT + "clinics";
+    public static final String NEW_USER_PATH = AUTH_PATH + "user/";
+    public static final String CLINICS_PATH = API_CONTEXT + "clinics/";
 }

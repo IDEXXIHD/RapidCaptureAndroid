@@ -33,37 +33,37 @@ public class LauncherActivity extends AppCompatActivity
 
     private void checkForCreds()
     {
-        AsyncTask<Object, Object, NetworkActions.TokenValidation> task = new AsyncTask<Object, Object, NetworkActions.TokenValidation>()
+        AsyncTask<Object, Object, NetworkActions.ResponseStatus> task = new AsyncTask<Object, Object, NetworkActions.ResponseStatus>()
         {
             @Override
-            protected NetworkActions.TokenValidation doInBackground(Object[] params)
+            protected NetworkActions.ResponseStatus doInBackground(Object[] params)
             {
                 List<Map<String, Object>> users = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers();
                 if(users.size() > 0)
                 {
                     String token = (String) users.get(0).get(UserSettingsContract.TOKEN_COLUMN);
-                    NetworkActions.TokenValidation validation = NetworkActions.validateToken(token);
-                    if(validation == NetworkActions.TokenValidation.SUCCESS)
+                    NetworkActions.ResponseStatus validation = NetworkActions.validateToken(token);
+                    if(validation == NetworkActions.ResponseStatus.SUCCESS)
                     {
                         NetworkAccessor.getInstance().setCurrentToken(token);
                     }
                     return validation;
                 }
-                return NetworkActions.TokenValidation.FAILURE;
+                return NetworkActions.ResponseStatus.FAILURE;
             }
 
             @Override
-            protected void onPostExecute(NetworkActions.TokenValidation tokenValidation)
+            protected void onPostExecute(NetworkActions.ResponseStatus tokenValidation)
             {
-                if(tokenValidation == NetworkActions.TokenValidation.SUCCESS)
+                if(tokenValidation == NetworkActions.ResponseStatus.SUCCESS)
                 {
                     goToHome();
                 }
-                else if(tokenValidation == NetworkActions.TokenValidation.FAILURE)
+                else if(tokenValidation == NetworkActions.ResponseStatus.FAILURE)
                 {
                     goToLogin();
                 }
-                else if (tokenValidation == NetworkActions.TokenValidation.NOT_AVAILABLE)
+                else if (tokenValidation == NetworkActions.ResponseStatus.NOT_AVAILABLE)
                 {
                     findViewById(R.id.progressBar).setVisibility(View.GONE);
                     new AlertDialog.Builder(LauncherActivity.this)
