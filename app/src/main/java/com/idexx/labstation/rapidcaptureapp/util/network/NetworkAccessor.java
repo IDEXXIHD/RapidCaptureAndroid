@@ -1,4 +1,4 @@
-package com.idexx.labstation.rapidcaptureapp.util;
+package com.idexx.labstation.rapidcaptureapp.util.network;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -7,6 +7,7 @@ import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.client.JerseyWebTarget;
 
@@ -37,6 +38,7 @@ public class NetworkAccessor
     private ObjectMapper objectMapper;
     private NetworkAccessor() {}
     private volatile boolean initialized;
+    private String currentToken;
 
     public JerseyWebTarget getWebTarget()
     {
@@ -53,7 +55,11 @@ public class NetworkAccessor
     public synchronized void initialize(String host, String context, int port)
     {
         String url = "http://" + host + ":" + port + "/" + context;
-        webTarget = new JerseyClientBuilder().build().target(url);
+        webTarget = new JerseyClientBuilder()
+                .build()
+                .target(url)
+                .property(ClientProperties.CONNECT_TIMEOUT, 15000)
+                .property(ClientProperties.READ_TIMEOUT, 30000);
         webTarget.register(getJsonProvider());
 
         objectMapper = new ObjectMapper();
@@ -68,5 +74,15 @@ public class NetworkAccessor
     private JacksonJsonProvider getJsonProvider()
     {
         return new JacksonJaxbJsonProvider(objectMapper, new Annotations[] {Annotations.JACKSON});
+    }
+
+    public String getCurrentToken()
+    {
+        return currentToken;
+    }
+
+    public void setCurrentToken(String token)
+    {
+        this.currentToken = token;
     }
 }

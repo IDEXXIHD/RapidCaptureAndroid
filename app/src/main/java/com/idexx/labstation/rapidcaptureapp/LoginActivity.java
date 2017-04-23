@@ -1,10 +1,7 @@
 package com.idexx.labstation.rapidcaptureapp;
 
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,23 +10,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
 import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
-import com.idexx.labstation.rapidcaptureapp.util.NetworkAccessor;
-import com.idexx.labstation.rapidcaptureapp.util.NetworkActions;
+import com.idexx.labstation.rapidcaptureapp.util.GeneralUtil;
+import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LaunchActivity extends AppCompatActivity
+public class LoginActivity extends AppCompatActivity
 {
     private LinearLayout loginWrapper;
-    private ProgressBar spinner;
     private Button loginButton;
     private EditText userField;
     private EditText passwordField;
@@ -40,19 +35,14 @@ public class LaunchActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        DBHelper.initialize(getApplicationContext());
 
-        NetworkAccessor.getInstance().initialize("192.168.1.108", "", 3000);
-        setContentView(R.layout.activity_launch);
+        setContentView(R.layout.activity_login);
         bindFields();
         bindHandlers();
-
-        checkForCreds();
     }
 
     private void bindFields()
     {
-        spinner = (ProgressBar) findViewById(R.id.launchProgressBar);
         loginWrapper = (LinearLayout) findViewById(R.id.launchLoginWrapper);
         loginButton = (Button) findViewById(R.id.launchLoginButton);
         userField = (EditText) findViewById(R.id.launchUserInputField);
@@ -71,43 +61,9 @@ public class LaunchActivity extends AppCompatActivity
         });
     }
 
-    private void checkForCreds()
-    {
-        AsyncTask<Object, Object, Boolean> task = new AsyncTask<Object, Object, Boolean>()
-        {
-            @Override
-            protected Boolean doInBackground(Object[] params)
-            {
-                List<Map<String, Object>> users = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers();
-                if(users.size() > 0)
-                {
-                    String token = (String) users.get(0).get(UserSettingsContract.TOKEN_COLUMN);
-                    activeUserName = (String) users.get(0).get(UserSettingsContract.USER_COLUMN);
-                    return NetworkActions.validateToken(token);
-                }
-                return false;
-            }
-
-            @Override
-            protected void onPostExecute(Boolean contToHome)
-            {
-                spinner.setVisibility(View.GONE);
-                if(contToHome)
-                {
-                    onSuccessfulLogin();
-                }
-                else
-                {
-                    userField.setText(activeUserName);
-                    loginWrapper.setVisibility(View.VISIBLE);
-                }
-            }
-        };
-        task.execute();
-    }
-
     private void checkLoginFields()
     {
+        GeneralUtil.hideKeyboard(getCurrentFocus());
         String user = userField.getText().toString();
         String pass = passwordField.getText().toString();
         if(user == null || user.length() == 0)
@@ -137,22 +93,23 @@ public class LaunchActivity extends AppCompatActivity
 
     private void attemptLogin(final UserLoginDto userLoginDto)
     {
-        final ProgressDialog progressDialog = ProgressDialog.show(this, "Logging in", "Attempting to log in");
+        final ProgressDialog progressDialog = ProgressDialog.show(this, null, "Signing in...");
         AsyncTask<UserLoginDto, Object, Boolean> loginTask = new AsyncTask<UserLoginDto, Object, Boolean>()
         {
             @Override
             protected Boolean doInBackground(UserLoginDto... params)
             {
-                Map<String, Object> resp = NetworkActions.login(userLoginDto);
-                if(resp.containsKey("token"))
+                Map resp = NetworkActions.login(userLoginDto);
+                if(resp != null && resp.containsKey("token"))
                 {
-                    //Check if user exists
-                    Map<String, Object> userEntity = new HashMap<>();
+                    List<Map<String, Object>> existingUsers = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).searchByUserName(userLoginDto.getUsername());
+                    Map<String, Object> userEntity = existingUsers != null && existingUsers.size() > 0
+                            ? existingUsers.get(0)
+                            : new HashMap<String, Object>();
                     userEntity.put(UserSettingsContract.USER_COLUMN, userLoginDto.getUsername());
                     userEntity.put(UserSettingsContract.TOKEN_COLUMN, resp.get("token"));
-                    long key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).create(userEntity);
-
-                    DBHelper.getInstance().getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
+                    int key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).insertOrUpdate(userEntity);
+                    DBHelper.getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
                     activeUserName = userLoginDto.getUsername();
                     return true;
                 }
@@ -172,9 +129,9 @@ public class LaunchActivity extends AppCompatActivity
                 }
                 else
                 {
-                    new AlertDialog.Builder(LaunchActivity.this)
-                            .setTitle("Invalid Login")
-                            .setMessage("Invalid login credentials. Please try again.")
+                    new AlertDialog.Builder(LoginActivity.this)
+                            .setTitle("Unable to login")
+                            .setMessage("There was an issue logging in. Please make sure your credentials are correct, and that the RapidCapture server is available.")
                             .setPositiveButton("OK", null)
                             .show();
                 }

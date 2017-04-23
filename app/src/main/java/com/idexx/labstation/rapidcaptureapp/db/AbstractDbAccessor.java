@@ -36,7 +36,7 @@ public abstract class AbstractDbAccessor implements DbAccessor
         return "DROP IF EXISTS " + getTableName();
     }
 
-    public Map<String, Object> get(long key)
+    public Map<String, Object> get(int key)
     {
         Cursor cursor = dbHelper.getReadableDatabase().query(
                 getTableName(),
@@ -53,17 +53,28 @@ public abstract class AbstractDbAccessor implements DbAccessor
         return results.size() == 1 ? results.get(0) : null;
     }
 
-    public void update(Map<String, Object> entity)
+    public void delete(int key)
+    {
+        dbHelper.getWritableDatabase().delete(getTableName(), BaseColumns._ID + " = ?", new String[] { "" + key });
+    }
+
+    public int update(Map<String, Object> entity)
     {
         ContentValues contentValues = convertToContentValues(entity);
         dbHelper.getWritableDatabase().update(getTableName(), contentValues, BaseColumns._ID + " = ?", new String[] { entity.get(BaseColumns._ID).toString() });
+        return (Integer)entity.get(BaseColumns._ID);
     }
 
-    public long create(Map<String, Object> entity)
+    public int insert(Map<String, Object> entity)
     {
         ContentValues cv = convertToContentValues(entity);
         long key = dbHelper.getWritableDatabase().insert(getTableName(), null, cv);
-        return key;
+        return (int)key;
+    }
+
+    public int insertOrUpdate(Map<String, Object> entity)
+    {
+        return entity.containsKey(BaseColumns._ID) ? update(entity) : insert(entity);
     }
 
     protected List<Map<String, Object>> get(Map<Column, Object> filters)

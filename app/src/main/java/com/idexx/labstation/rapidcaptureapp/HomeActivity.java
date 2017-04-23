@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
@@ -58,7 +57,7 @@ public class HomeActivity extends AppCompatActivity
     private void signout()
     {
         DBHelper.getDbAccessor(UserSettingsDbAccessor.class).clearActiveUsers();
-        Intent intent = new Intent(this, LaunchActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();

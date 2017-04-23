@@ -17,7 +17,7 @@ public class UserSettingsContract implements BaseColumns
 
     public static List<Column> COLUMNS = Arrays.asList(
             new Column(_ID, Column.DBColumnDataType.INTEGER, Column.DBColumnOption.PRIMARY_KEY),
-            new Column(USER_COLUMN, Column.DBColumnDataType.TEXT),
+            new Column(USER_COLUMN, Column.DBColumnDataType.TEXT, Column.DBColumnOption.UNIQUE),
             new Column(TOKEN_COLUMN, Column.DBColumnDataType.TEXT),
             new Column(ACTIVE_COLUMN, Column.DBColumnDataType.INTEGER)
     );

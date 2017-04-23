@@ -18,7 +18,7 @@ public class UserSettingsDbAccessor extends AbstractDbAccessor
         super(dbHelper);
     }
 
-    public void setUserActive(long key)
+    public void setUserActive(int key)
     {
         clearActiveUsers();
         Map<String, Object> user = get(key);
@@ -46,6 +46,11 @@ public class UserSettingsDbAccessor extends AbstractDbAccessor
     public List<Map<String, Object>> getActiveUsers()
     {
         return getUsers(null, null, Boolean.TRUE);
+    }
+
+    public List<Map<String, Object>> searchByUserName(String userName)
+    {
+        return getUsers(userName, null, null);
     }
 
     @Override

@@ -54,7 +54,11 @@ public class Column
 
     public enum DBColumnOption
     {
-        PRIMARY_KEY("PRIMARY KEY");
+        PRIMARY_KEY("PRIMARY KEY"),
+        UNIQUE("UNIQUE"),
+        NOT_NULL("NOT NULL"),
+        FOREIGN_KEY("FOREIGN KEY"),
+        CHECK("CHECK");
 
         public final String text;
 

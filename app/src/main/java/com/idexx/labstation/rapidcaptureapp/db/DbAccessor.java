@@ -9,9 +9,11 @@ import java.util.Map;
  */
 public interface DbAccessor
 {
-    Map<String, Object> get(long key);
-    void update(Map<String, Object> entity);
-    long create(Map<String, Object> entity);
+    Map<String, Object> get(int key);
+    void delete(int key);
+    int update(Map<String, Object> entity);
+    int insert(Map<String, Object> entity);
+    int insertOrUpdate(Map<String, Object> entity);
     String getCreateTableCommand();
     String getDropTableCommand();
     String getTableName();
