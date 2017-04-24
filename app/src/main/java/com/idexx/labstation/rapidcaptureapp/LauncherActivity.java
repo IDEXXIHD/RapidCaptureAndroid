@@ -8,10 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkAccessor;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
+
+import java.sql.SQLException;
 
 public class LauncherActivity extends AppCompatActivity
 {
@@ -33,7 +36,7 @@ public class LauncherActivity extends AppCompatActivity
             @Override
             protected NetworkActions.ResponseStatus doInBackground(Object[] params)
             {
-                User activeUser = UserDao.getInstance().getActiveUser(getApplicationContext());
+                User activeUser = GeneralSettingsDao.getInstance().getActiveUser(getApplicationContext());
                 if(activeUser != null)
                 {
                     String token = activeUser.getJwtToken();

@@ -14,8 +14,6 @@ public class User extends AbstractEntity
     private String user;
     @DatabaseField(columnName = UserContract.TOKEN_COLUMN)
     private String jwtToken;
-    @DatabaseField(columnName = UserContract.ACTIVE_COLUMN)
-    private boolean active;
 
     public String getUser()
     {
@@ -35,15 +33,5 @@ public class User extends AbstractEntity
     public void setJwtToken(String jwtToken)
     {
         this.jwtToken = jwtToken;
-    }
-
-    public boolean isActive()
-    {
-        return active;
-    }
-
-    public void setActive(boolean active)
-    {
-        this.active = active;
     }
 }

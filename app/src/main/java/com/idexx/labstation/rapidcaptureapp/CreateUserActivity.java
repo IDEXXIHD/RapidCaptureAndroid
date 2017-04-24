@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
 import com.idexx.labstation.rapidcaptureapp.entity.DatabaseHelper;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
@@ -119,7 +120,7 @@ public class CreateUserActivity extends AppCompatActivity
                     user.setUser(newUser.getUsername());
 
                     user = UserDao.getInstance().createIfNotExists(user, getApplicationContext());
-                    UserDao.getInstance().setUserActive(user, getApplicationContext());
+                    GeneralSettingsDao.getInstance().setUserActive(user, getApplicationContext());
                 }
                 return responseStatus;
             }

@@ -10,14 +10,14 @@ import com.j256.ormlite.field.DatabaseField;
 public class AbstractEntity implements BaseColumns
 {
     @DatabaseField(generatedId = true, columnName = _ID)
-    private int id;
+    private Integer id;
 
-    public int getId()
+    public Integer getId()
     {
         return id;
     }
 
-    public void setId(int id)
+    public void setId(Integer id)
     {
         this.id = id;
     }

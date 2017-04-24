@@ -23,57 +23,27 @@ public class UserDao extends AbstractDao<User>
         return instance;
     }
 
-    public void setUserActive(User user, Context context)
-    {
-        clearActiveUser(context);
-        user.setActive(true);
-        update(user, context);
-    }
-
-    public void clearActiveUser(Context context)
-    {
-        User oldActive = getActiveUser(context);
-        if(oldActive != null)
-        {
-            oldActive.setActive(false);
-            update(oldActive, context);
-        }
-    }
-
-    public List<User> searchByUsername(String username, Context context)
+    public User getByUsername(String username, Context context)
     {
         try
         {
-            return getInnerDao(context).queryForEq(UserContract.USER_COLUMN, username);
+            List<User> userList = getInnerDao(context).queryForEq(UserContract.USER_COLUMN, username);
+            if(userList == null || userList.size() == 0)
+            {
+                return null;
+            }
+            if(userList.size() == 1)
+            {
+                return userList.get(0);
+            }
+            else
+            {
+                throw new RuntimeException("Corrupt database, multiple users found for user " + username);
+            }
         }
         catch (SQLException e)
         {
             Log.e(getClass().getSimpleName(), "Error searching by username " + username, e);
-            return null;
-        }
-    }
-
-    public User getActiveUser(Context context)
-    {
-        try
-        {
-            List<User> userList = getInnerDao(context).queryForEq(UserContract.ACTIVE_COLUMN, Boolean.TRUE);
-            if(userList != null && userList.size() == 1)
-            {
-                return userList.get(0);
-            }
-            else if (userList != null && userList.size() > 1)
-            {
-                throw new RuntimeException("Database corrupt - more than one active user specified");
-            }
-            else
-            {
-                return null;
-            }
-        }
-        catch (SQLException e)
-        {
-            Log.e(UserDao.class.getSimpleName(), "Error getting active user", e);
             return null;
         }
     }

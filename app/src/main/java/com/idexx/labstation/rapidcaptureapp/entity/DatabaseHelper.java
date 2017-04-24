@@ -24,6 +24,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
 
     static
     {
+        TABLE_CLASSES.add(GeneralSettings.class);
         TABLE_CLASSES.add(User.class);
     }
 
@@ -56,8 +57,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
             for(Class<? extends AbstractEntity> clazz : TABLE_CLASSES)
             {
                 Log.i(getClass().getSimpleName(), "Creating table for class " + clazz.getSimpleName());
-                TableUtils.createTable(connectionSource, User.class);
+                TableUtils.createTable(connectionSource, clazz);
             }
+            //Create settings entry
+            GeneralSettings generalSettings = new GeneralSettings();
+            getDao(GeneralSettings.class).createIfNotExists(generalSettings);
         }
         catch (SQLException e)
         {
@@ -69,10 +73,28 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion)
     {
+        Log.i(getClass().getSimpleName(), "Upgrading database " + DB_NAME + " from version " + oldVersion + " to " + newVersion);
+        rebuild(database);
+    }
+
+
+    @Override
+    public void onDowngrade(SQLiteDatabase database, int oldVersion, int newVersion)
+    {
+        Log.i(getClass().getSimpleName(), "Downgrading database " + DB_NAME + " from version " + oldVersion + " to " + newVersion);
+        rebuild(database);
+    }
+
+    private void rebuild(SQLiteDatabase database)
+    {
         try
         {
-            Log.i(getClass().getSimpleName(), "Upgrading database " + DB_NAME + " from version " + oldVersion + " to " + newVersion);
-            TableUtils.dropTable(connectionSource, User.class, true);
+            Log.i(getClass().getSimpleName(), "Rebuilding database " + DB_NAME);
+            for(Class<? extends AbstractEntity> clazz : TABLE_CLASSES)
+            {
+                Log.i(getClass().getSimpleName(), "Dropping table for class " + clazz.getSimpleName());
+                TableUtils.dropTable(connectionSource, clazz, true);
+            }
             onCreate(database, connectionSource);
         }
         catch (SQLException e)

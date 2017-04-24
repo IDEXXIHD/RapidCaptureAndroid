@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
@@ -74,7 +75,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             protected User doInBackground(Object... params)
             {
-                return UserDao.getInstance().getActiveUser(getApplicationContext());
+                return GeneralSettingsDao.getInstance().getActiveUser(getApplicationContext());
             }
 
             @Override
@@ -130,14 +131,14 @@ public class LoginActivity extends AppCompatActivity
                 LoginResponseDto resp = NetworkActions.login(userLoginDto);
                 if(resp != null && resp.getToken() != null)
                 {
-                    List<User> existingUsers = UserDao.getInstance().searchByUsername(userLoginDto.getUsername(), getApplicationContext());
-                    User userEntity = existingUsers != null && existingUsers.size() > 0
-                            ? existingUsers.get(0)
-                            : new User();
+                    User userEntity = UserDao.getInstance().getByUsername(userLoginDto.getUsername(), getApplicationContext());
+                    userEntity = userEntity == null ? new User() : userEntity;
+
                     userEntity.setUser(userLoginDto.getUsername());
                     userEntity.setJwtToken(resp.getToken());
-                    UserDao.getInstance().createIfNotExists(userEntity, getApplicationContext());
-                    UserDao.getInstance().setUserActive(userEntity, getApplicationContext());
+
+                    UserDao.getInstance().createOrUpdate(userEntity, getApplicationContext());
+                    GeneralSettingsDao.getInstance().setUserActive(userEntity, getApplicationContext());
                     NetworkAccessor.getInstance().setCurrentToken(resp.getToken());
                     return true;
                 }

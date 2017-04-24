@@ -3,6 +3,7 @@ package com.idexx.labstation.rapidcaptureapp.dao;
 import android.content.Context;
 import android.util.Log;
 
+import com.idexx.labstation.rapidcaptureapp.entity.AbstractEntity;
 import com.idexx.labstation.rapidcaptureapp.entity.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
 
@@ -11,9 +12,34 @@ import java.sql.SQLException;
 /**
  * Created by mhansen on 4/24/2017.
  */
-public abstract class AbstractDao <T>
+public abstract class AbstractDao <T extends AbstractEntity>
 {
     protected abstract Class<T> getEntityClass();
+
+    public T getByKey(int key, Context context)
+    {
+        try
+        {
+            return DatabaseHelper.getInstance(context).getDaoIfExists(getEntityClass()).queryForId(key);
+        }
+        catch (SQLException e)
+        {
+            Log.e(getClass().getSimpleName(), "Error getting entity by key", e);
+            return null;
+        }
+    }
+
+    public T createOrUpdate(T entity, Context context)
+    {
+        if(entity.getId() != null)
+        {
+            return getByKey(update(entity, context), context);
+        }
+        else
+        {
+            return createIfNotExists(entity, context);
+        }
+    }
 
     public T createIfNotExists(T entity, Context context)
     {

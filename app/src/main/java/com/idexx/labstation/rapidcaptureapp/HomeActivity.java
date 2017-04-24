@@ -13,7 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
+import com.idexx.labstation.rapidcaptureapp.entity.GeneralSettings;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
@@ -133,7 +135,7 @@ public class HomeActivity extends AppCompatActivity
             @Override
             protected String doInBackground(Object... params)
             {
-                User activeUser = UserDao.getInstance().getActiveUser(getApplicationContext());
+                User activeUser = GeneralSettingsDao.getInstance().getActiveUser(getApplicationContext());
                 return activeUser.getUser();
             }
 
@@ -171,7 +173,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void signout()
     {
-        UserDao.getInstance().clearActiveUser(getApplicationContext());
+        GeneralSettingsDao.getInstance().clearActiveUser(getApplicationContext());
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
