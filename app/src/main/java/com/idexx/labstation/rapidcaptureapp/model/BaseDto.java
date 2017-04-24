@@ -3,13 +3,14 @@ package com.idexx.labstation.rapidcaptureapp.model;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by mhansen on 4/23/2017.
  */
-public abstract class BaseDto
+public abstract class BaseDto implements Serializable
 {
     private Map<String, Object> miscFields = new HashMap<>();
 

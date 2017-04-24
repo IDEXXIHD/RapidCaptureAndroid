@@ -35,6 +35,8 @@
         </activity>
         <activity android:name=".CreateClinicActivity">
         </activity>
+        <activity android:name=".ClinicDetailsActivity" android:theme="@style/AppThemeNoBar">
+        </activity>
     </application>
 
 </manifest>
