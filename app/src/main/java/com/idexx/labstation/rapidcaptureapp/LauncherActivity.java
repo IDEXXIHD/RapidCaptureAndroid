@@ -8,14 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
+import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkAccessor;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
-
-import java.util.List;
-import java.util.Map;
 
 public class LauncherActivity extends AppCompatActivity
 {
@@ -24,8 +20,7 @@ public class LauncherActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        DBHelper.initialize(getApplicationContext());
-        NetworkAccessor.getInstance().initialize("192.168.1.106", "", 3000);
+        NetworkAccessor.getInstance().initialize("192.168.1.109", "", 3000);
 
         setContentView(R.layout.activity_launcher);
         checkForCreds();
@@ -38,10 +33,10 @@ public class LauncherActivity extends AppCompatActivity
             @Override
             protected NetworkActions.ResponseStatus doInBackground(Object[] params)
             {
-                List<Map<String, Object>> users = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers();
-                if(users.size() > 0)
+                User activeUser = UserDao.getInstance().getActiveUser(getApplicationContext());
+                if(activeUser != null)
                 {
-                    String token = (String) users.get(0).get(UserSettingsContract.TOKEN_COLUMN);
+                    String token = activeUser.getJwtToken();
                     NetworkActions.ResponseStatus validation = NetworkActions.validateToken(token);
                     if(validation == NetworkActions.ResponseStatus.SUCCESS)
                     {

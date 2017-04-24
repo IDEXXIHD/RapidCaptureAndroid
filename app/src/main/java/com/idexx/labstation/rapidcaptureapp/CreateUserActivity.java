@@ -6,20 +6,19 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
+import com.idexx.labstation.rapidcaptureapp.entity.DatabaseHelper;
+import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
 import com.idexx.labstation.rapidcaptureapp.util.TextChangedWatcher;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.Map;
 
 public class CreateUserActivity extends AppCompatActivity
@@ -116,11 +115,11 @@ public class CreateUserActivity extends AppCompatActivity
                 NetworkActions.ResponseStatus responseStatus = NetworkActions.createUser(newUser);
                 if(responseStatus == NetworkActions.ResponseStatus.SUCCESS)
                 {
-                    Map<String, Object> userEntity = new HashMap<>();
-                    userEntity.put(UserSettingsContract.USER_COLUMN, newUser.getUsername());
+                    User user = new User();
+                    user.setUser(newUser.getUsername());
 
-                    int key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).insertOrUpdate(userEntity);
-                    DBHelper.getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
+                    user = UserDao.getInstance().createIfNotExists(user, getApplicationContext());
+                    UserDao.getInstance().setUserActive(user, getApplicationContext());
                 }
                 return responseStatus;
             }

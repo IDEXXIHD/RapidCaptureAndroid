@@ -4,27 +4,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
+import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity
 {
@@ -137,8 +133,8 @@ public class HomeActivity extends AppCompatActivity
             @Override
             protected String doInBackground(Object... params)
             {
-                Map<String, Object> activeUser = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers().get(0);
-                return (String) activeUser.get(UserSettingsContract.USER_COLUMN);
+                User activeUser = UserDao.getInstance().getActiveUser(getApplicationContext());
+                return activeUser.getUser();
             }
 
             @Override
@@ -175,7 +171,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void signout()
     {
-        DBHelper.getDbAccessor(UserSettingsDbAccessor.class).clearActiveUsers();
+        UserDao.getInstance().clearActiveUser(getApplicationContext());
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

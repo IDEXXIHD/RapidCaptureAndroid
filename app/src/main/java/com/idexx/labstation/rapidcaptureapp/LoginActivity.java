@@ -10,18 +10,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.idexx.labstation.rapidcaptureapp.db.DBHelper;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsContract;
-import com.idexx.labstation.rapidcaptureapp.db.UserSettingsDbAccessor;
+import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
+import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 import com.idexx.labstation.rapidcaptureapp.util.GeneralUtil;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkAccessor;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -72,25 +69,20 @@ public class LoginActivity extends AppCompatActivity
 
     private void checkForActiveUser()
     {
-        new AsyncTask<Object, Object, Map<String, Object>>()
+        new AsyncTask<Object, Object, User>()
         {
             @Override
-            protected Map<String, Object> doInBackground(Object... params)
+            protected User doInBackground(Object... params)
             {
-                List<Map<String, Object>> activeUsers = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).getActiveUsers();
-                if(activeUsers != null && activeUsers.size() > 0)
-                {
-                    return activeUsers.get(0);
-                }
-                return null;
+                return UserDao.getInstance().getActiveUser(getApplicationContext());
             }
 
             @Override
-            protected void onPostExecute(Map<String, Object> user)
+            protected void onPostExecute(User user)
             {
                 if(user != null)
                 {
-                    userField.setText((String)user.get(UserSettingsContract.USER_COLUMN));
+                    userField.setText(user.getUser());
                     passwordField.requestFocus();
                 }
             }
@@ -138,14 +130,14 @@ public class LoginActivity extends AppCompatActivity
                 LoginResponseDto resp = NetworkActions.login(userLoginDto);
                 if(resp != null && resp.getToken() != null)
                 {
-                    List<Map<String, Object>> existingUsers = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).searchByUserName(userLoginDto.getUsername());
-                    Map<String, Object> userEntity = existingUsers != null && existingUsers.size() > 0
+                    List<User> existingUsers = UserDao.getInstance().searchByUsername(userLoginDto.getUsername(), getApplicationContext());
+                    User userEntity = existingUsers != null && existingUsers.size() > 0
                             ? existingUsers.get(0)
-                            : new HashMap<String, Object>();
-                    userEntity.put(UserSettingsContract.USER_COLUMN, userLoginDto.getUsername());
-                    userEntity.put(UserSettingsContract.TOKEN_COLUMN, resp.getToken());
-                    int key = DBHelper.getDbAccessor(UserSettingsDbAccessor.class).insertOrUpdate(userEntity);
-                    DBHelper.getDbAccessor(UserSettingsDbAccessor.class).setUserActive(key);
+                            : new User();
+                    userEntity.setUser(userLoginDto.getUsername());
+                    userEntity.setJwtToken(resp.getToken());
+                    UserDao.getInstance().createIfNotExists(userEntity, getApplicationContext());
+                    UserDao.getInstance().setUserActive(userEntity, getApplicationContext());
                     NetworkAccessor.getInstance().setCurrentToken(resp.getToken());
                     return true;
                 }
