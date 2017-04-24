@@ -15,7 +15,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/homeLoadingLayout">
+        android:id="@+id/homeLoadingLayout"
+        android:visibility="visible">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -34,16 +35,18 @@
         android:id="@+id/homeContentLayout"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Welcome Back"
-            android:id="@+id/homeWelcomeTextView"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="15dp"
-            android:textColor="@color/accent_material_light"/>
+            android:layout_marginBottom="10dp">
+
+            <ExpandableListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/homeOptionsExpandableListView"
+                android:groupIndicator="@null"/>
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
@@ -86,6 +89,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"/>
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

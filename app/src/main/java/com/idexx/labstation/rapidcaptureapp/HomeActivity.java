@@ -10,9 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.idexx.labstation.rapidcaptureapp.adapter.HomeOptionExpandableListAdapter;
+import com.idexx.labstation.rapidcaptureapp.adapter.model.HomeOptionItem;
 import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
 import com.idexx.labstation.rapidcaptureapp.entity.GeneralSettings;
@@ -20,9 +23,13 @@ import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity
 {
@@ -30,10 +37,11 @@ public class HomeActivity extends AppCompatActivity
 
     private View contentLayout;
     private View loadingLayout;
-    private TextView welcomeLabel;
     private ListView clinicsListView;
+    private ExpandableListView optionsListView;
 
     private ArrayAdapter<ClinicDto> clinicsAdapter;
+    private HomeOptionExpandableListAdapter homeOptionExpandableListAdapter;
 
     private boolean nameLoaded;
     private boolean clinicsLoaded;
@@ -48,27 +56,18 @@ public class HomeActivity extends AppCompatActivity
         findActiveUser();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    private boolean handleOptionItem(HomeOptionItem item)
     {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home_action_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
+        switch (item)
         {
-            case R.id.homeMenuSignoutOption:
+            case LOGOUT:
                 signout();
                 return true;
-            case R.id.homeMenuCreateClinic:
+            case CREATE_CLINIC:
                 goToCreateClinic();
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                return false;
         }
     }
 
@@ -76,8 +75,20 @@ public class HomeActivity extends AppCompatActivity
     {
         contentLayout = findViewById(R.id.homeContentLayout);
         loadingLayout = findViewById(R.id.homeLoadingLayout);
-        welcomeLabel = (TextView) findViewById(R.id.homeWelcomeTextView);
         clinicsListView = (ListView) findViewById(R.id.homeClinicsListView);
+        optionsListView = (ExpandableListView) findViewById(R.id.homeOptionsExpandableListView);
+
+        homeOptionExpandableListAdapter = new HomeOptionExpandableListAdapter(this);
+        optionsListView.setAdapter(homeOptionExpandableListAdapter);
+        optionsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener()
+        {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+            {
+                HomeOptionItem item = homeOptionExpandableListAdapter.getChild(groupPosition, childPosition);
+                return handleOptionItem(item);
+            }
+        });
 
         clinicsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         clinicsListView.setAdapter(clinicsAdapter);
@@ -142,7 +153,7 @@ public class HomeActivity extends AppCompatActivity
             @Override
             protected void onPostExecute(String s)
             {
-                welcomeLabel.setText("Welcome Back, " + s);
+                homeOptionExpandableListAdapter.updateTitle("Welcome back, " + s);
                 nameLoaded = true;
                 checkForDone();
             }
