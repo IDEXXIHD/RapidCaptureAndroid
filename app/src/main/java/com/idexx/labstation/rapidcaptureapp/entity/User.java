@@ -8,27 +8,14 @@ import com.j256.ormlite.table.DatabaseTable;
  * Created by mhansen on 4/23/2017.
  */
 @DatabaseTable(tableName = UserContract.TABLE_NAME)
-public class User
+public class User extends AbstractEntity
 {
-
-    @DatabaseField(generatedId = true, columnName = UserContract._ID)
-    private int id;
-    @DatabaseField(columnName = UserContract.USER_COLUMN)
+    @DatabaseField(columnName = UserContract.USER_COLUMN, unique = true)
     private String user;
     @DatabaseField(columnName = UserContract.TOKEN_COLUMN)
     private String jwtToken;
     @DatabaseField(columnName = UserContract.ACTIVE_COLUMN)
     private boolean active;
-
-    public int getId()
-    {
-        return id;
-    }
-
-    public void setId(int id)
-    {
-        this.id = id;
-    }
 
     public String getUser()
     {

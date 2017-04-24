@@ -10,7 +10,9 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,12 +20,17 @@ import java.util.Map;
  */
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper
 {
-    private static DatabaseHelper instance;
+    private static final List<Class<? extends AbstractEntity>> TABLE_CLASSES = new ArrayList<>();
+
+    static
+    {
+        TABLE_CLASSES.add(User.class);
+    }
 
     private static final String DB_NAME = "RapidCapture";
     private static final int DB_VERSION = 1;
+    private static DatabaseHelper instance;
 
-    private Dao<User, Integer> userDao;
     private Map<Class, Dao> daoMap = new HashMap<>();
 
     private DatabaseHelper(Context context)
@@ -46,7 +53,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
         try
         {
             Log.i(getClass().getSimpleName(), "Creating database " + DB_NAME);
-            TableUtils.createTable(connectionSource, User.class);
+            for(Class<? extends AbstractEntity> clazz : TABLE_CLASSES)
+            {
+                Log.i(getClass().getSimpleName(), "Creating table for class " + clazz.getSimpleName());
+                TableUtils.createTable(connectionSource, User.class);
+            }
         }
         catch (SQLException e)
         {
@@ -94,6 +105,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
     public void close()
     {
         super.close();
-        userDao = null;
+        daoMap.clear();
     }
 }
