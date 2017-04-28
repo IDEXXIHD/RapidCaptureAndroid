@@ -68,6 +68,21 @@ public class GeneralSettingsDao extends AbstractDao<GeneralSettings>
         update(settings, context);
     }
 
+    public String getServerHost(Context context)
+    {
+        return getSettings(context).getServerHost();
+    }
+
+    public String getServerContext(Context context)
+    {
+        return getSettings(context).getServerContext();
+    }
+
+    public Integer getServerPort(Context context)
+    {
+        return getSettings(context).getServerPort();
+    }
+
     @Override
     public GeneralSettings createIfNotExists(GeneralSettings entity, Context context)
     {

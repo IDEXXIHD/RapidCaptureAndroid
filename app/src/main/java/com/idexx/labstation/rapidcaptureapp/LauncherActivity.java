@@ -23,10 +23,37 @@ public class LauncherActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        NetworkAccessor.getInstance().initialize("192.168.1.109", "", 3000);
+    }
 
-        setContentView(R.layout.activity_launcher);
-        checkForCreds();
+    @Override
+    protected void onPostResume()
+    {
+        super.onPostResume();
+        initialize();
+    }
+
+    private void initialize()
+    {
+        if(NetworkAccessor.getInstance().initialize(getApplicationContext()))
+        {
+            setContentView(R.layout.activity_launcher);
+            checkForCreds();
+        }
+        else
+        {
+            //Server info not set, need to load server config screen
+            new AlertDialog.Builder(this)
+                    .setTitle("Setup Required")
+                    .setMessage("Please configure the RapidCapture server settings")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            goToServerConfig();
+                        }
+                    }).show();
+        }
     }
 
     private void checkForCreds()
@@ -66,12 +93,19 @@ public class LauncherActivity extends AppCompatActivity
                     findViewById(R.id.progressBar).setVisibility(View.GONE);
                     new AlertDialog.Builder(LauncherActivity.this)
                             .setTitle("Server Unavailable")
-                            .setMessage("Unable to reach server. Please try again later.")
-                            .setPositiveButton("OK", null)
-                            .setOnDismissListener(new DialogInterface.OnDismissListener()
+                            .setMessage("Unable to reach server. Please check server configuration, or try again later.")
+                            .setPositiveButton("Configure Server", new DialogInterface.OnClickListener()
                             {
                                 @Override
-                                public void onDismiss(DialogInterface dialog)
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    goToServerConfig();
+                                }
+                            })
+                            .setNegativeButton("Close App", new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
                                 {
                                     finishAndRemoveTask();
                                 }
@@ -97,6 +131,12 @@ public class LauncherActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void goToServerConfig()
+    {
+        Intent intent = new Intent(this, ServerConfigActivity.class);
+        startActivity(intent);
     }
 
 }

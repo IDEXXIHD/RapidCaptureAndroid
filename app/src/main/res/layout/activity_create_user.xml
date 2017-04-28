@@ -50,14 +50,21 @@
             android:layout_below="@+id/linearLayout"
             android:layout_alignParentStart="true">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Account Details"
+                android:id="@+id/textView6"
+                android:textColor="@color/accent_material_light"/>
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/createUserUsernameEditText"
                 android:hint="Username (Required)"
-                android:layout_below="@+id/linearLayout"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="10dp"/>
+                android:layout_below="@+id/textView6"
+                android:layout_alignParentStart="true"/>
 
             <EditText
                 android:layout_width="match_parent"
@@ -96,9 +103,9 @@
                 android:ems="10"
                 android:id="@+id/createUserFirstNameEditText"
                 android:hint="First Name (Optional)"
-                android:layout_marginTop="64dp"
-                android:layout_below="@+id/createUserPasswordConfirmEditText"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView7"
+                android:layout_alignParentLeft="true"/>
 
             <EditText
                 android:layout_width="match_parent"
@@ -106,9 +113,21 @@
                 android:inputType="textPersonName"
                 android:ems="10"
                 android:id="@+id/createUserLastNameEditText"
-                android:layout_below="@+id/createUserFirstNameEditText"
                 android:layout_alignParentStart="true"
-                android:hint="Last Name (Optional)"/>
+                android:hint="Last Name (Optional)"
+                android:layout_below="@+id/createUserFirstNameEditText"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Profile"
+                android:id="@+id/textView7"
+                android:textColor="@color/accent_material_light"
+                android:layout_below="@+id/createUserPasswordConfirmEditText"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="27dp"/>
         </RelativeLayout>
     </ScrollView>
 

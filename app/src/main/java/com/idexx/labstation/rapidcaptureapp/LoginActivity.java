@@ -1,6 +1,7 @@
 package com.idexx.labstation.rapidcaptureapp;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
@@ -18,8 +19,6 @@ import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 import com.idexx.labstation.rapidcaptureapp.util.GeneralUtil;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkAccessor;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
-
-import java.util.List;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -162,6 +161,14 @@ public class LoginActivity extends AppCompatActivity
                             .setTitle("Unable to login")
                             .setMessage("There was an issue logging in. Please make sure your credentials are correct, and that the RapidCapture server is available.")
                             .setPositiveButton("OK", null)
+                            .setNeutralButton("Configure Server", new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    goToServerConfig();
+                                }
+                            })
                             .show();
                 }
             }
@@ -181,5 +188,11 @@ public class LoginActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void goToServerConfig()
+    {
+        Intent intent = new Intent(this, ServerConfigActivity.class);
+        startActivity(intent);
     }
 }

@@ -31,12 +31,18 @@
         </activity>
         <activity
             android:name=".HomeActivity"
-            android:theme="@style/AppThemeNoBar"
-            android:label="">
+            android:label=""
+            android:theme="@style/AppThemeNoBar">
         </activity>
         <activity android:name=".CreateClinicActivity">
         </activity>
-        <activity android:name=".ClinicDetailsActivity" android:theme="@style/AppThemeNoBar">
+        <activity
+            android:name=".ClinicDetailsActivity"
+            android:theme="@style/AppThemeNoBar">
+        </activity>
+        <activity
+            android:name=".ServerConfigActivity"
+            android:theme="@style/AppThemeNoBar">
         </activity>
     </application>
 

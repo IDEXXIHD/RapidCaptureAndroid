@@ -1,11 +1,15 @@
 package com.idexx.labstation.rapidcaptureapp.util.network;
 
+import android.content.Context;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
+import com.idexx.labstation.rapidcaptureapp.entity.GeneralSettings;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.JerseyClientBuilder;
@@ -52,8 +56,19 @@ public class NetworkAccessor
         }
     }
 
-    public synchronized void initialize(String host, String context, int port)
+    public synchronized boolean initialize(Context appContext)
     {
+        initialized = false;
+
+        String host = GeneralSettingsDao.getInstance().getServerHost(appContext);
+        String context = GeneralSettingsDao.getInstance().getServerContext(appContext);
+        Integer port = GeneralSettingsDao.getInstance().getServerPort(appContext);
+
+        if(host == null || context == null || port == null)
+        {
+            return false;
+        }
+
         String url = "http://" + host + ":" + port + "/" + context;
         webTarget = new JerseyClientBuilder()
                 .build()
@@ -69,6 +84,7 @@ public class NetworkAccessor
         objectMapper.setDateFormat(sdf);
 
         initialized = true;
+        return true;
     }
 
     private JacksonJsonProvider getJsonProvider()
