@@ -5,8 +5,10 @@ import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
 import com.idexx.labstation.rapidcaptureapp.model.CreateClinicDto;
 import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
 import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
+import com.idexx.labstation.rapidcaptureapp.model.StudyDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,11 @@ public class NetworkActions
             Log.e(NetworkActions.class.getSimpleName(), "Error creating clinic", e);
             return null;
         }
+    }
+
+    public static List<StudyDto> getStudies()
+    {
+        return Collections.emptyList();
     }
 
     public static List<ClinicDto> getClinics()

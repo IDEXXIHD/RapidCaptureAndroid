@@ -14,7 +14,7 @@ import com.idexx.labstation.rapidcaptureapp.adapter.HomeOptionExpandableListAdap
 import com.idexx.labstation.rapidcaptureapp.adapter.model.HomeOptionItem;
 import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
-import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
+import com.idexx.labstation.rapidcaptureapp.model.StudyDto;
 import com.idexx.labstation.rapidcaptureapp.util.UserUtils;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
@@ -24,18 +24,18 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
 {
-    private List<ClinicDto> clinics;
+    private List<StudyDto> studies;
 
     private View contentLayout;
     private View loadingLayout;
-    private ListView clinicsListView;
+    private ListView studiesListView;
     private ExpandableListView optionsListView;
 
-    private ArrayAdapter<ClinicDto> clinicsAdapter;
+    private ArrayAdapter<StudyDto> studiesAdapter;
     private HomeOptionExpandableListAdapter homeOptionExpandableListAdapter;
 
     private boolean nameLoaded;
-    private boolean clinicsLoaded;
+    private boolean studiesLoaded;
 
     private User activeUser;
 
@@ -60,7 +60,7 @@ public class HomeActivity extends AppCompatActivity
                 goToUserSettings();
                 return true;
             case CREATE_STUDY:
-                goToCreateClinic();
+                goToCreateStudy();
                 return true;
             default:
                 return false;
@@ -71,18 +71,18 @@ public class HomeActivity extends AppCompatActivity
     {
         contentLayout = findViewById(R.id.homeContentLayout);
         loadingLayout = findViewById(R.id.homeLoadingLayout);
-        clinicsListView = (ListView) findViewById(R.id.homeClinicsListView);
+        studiesListView = (ListView) findViewById(R.id.homeStudiesListView);
         optionsListView = (ExpandableListView) findViewById(R.id.homeOptionsExpandableListView);
 
-        clinicsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        clinicsListView.setAdapter(clinicsAdapter);
-        clinicsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        studiesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        studiesListView.setAdapter(studiesAdapter);
+        studiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                ClinicDto selected = clinicsAdapter.getItem(position);
-                goToClinicDetails(selected);
+                StudyDto selected = studiesAdapter.getItem(position);
+                goToStudyDetails(selected);
             }
         });
     }
@@ -104,21 +104,21 @@ public class HomeActivity extends AppCompatActivity
 
     private void populateLists()
     {
-        updateClinics();
+        updateStudies();
     }
 
-    private void updateClinics()
+    private void updateStudies()
     {
         new AsyncTask<Object, Object, Object>()
         {
             @Override
             protected Object doInBackground(Object... params)
             {
-                clinics = NetworkActions.getClinics();
-                Collections.sort(clinics, new Comparator<ClinicDto>()
+                studies = NetworkActions.getStudies();
+                Collections.sort(studies, new Comparator<StudyDto>()
                 {
                     @Override
-                    public int compare(ClinicDto lhs, ClinicDto rhs)
+                    public int compare(StudyDto lhs, StudyDto rhs)
                     {
                         return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
                     }
@@ -129,10 +129,10 @@ public class HomeActivity extends AppCompatActivity
             @Override
             protected void onPostExecute(Object obj)
             {
-                clinicsAdapter.clear();
-                clinicsAdapter.addAll(clinics);
-                clinicsAdapter.notifyDataSetChanged();
-                clinicsLoaded = true;
+                studiesAdapter.clear();
+                studiesAdapter.addAll(studies);
+                studiesAdapter.notifyDataSetChanged();
+                studiesLoaded = true;
                 checkForDone();
             }
         }.execute();
@@ -163,21 +163,19 @@ public class HomeActivity extends AppCompatActivity
 
     private void checkForDone()
     {
-        if(nameLoaded && clinicsLoaded)
+        if(nameLoaded && studiesLoaded)
         {
             loadingLayout.setVisibility(View.GONE);
             contentLayout.setVisibility(View.VISIBLE);
         }
     }
 
-    private void goToClinicDetails(ClinicDto clinicDto)
+    private void goToStudyDetails(StudyDto studyDto)
     {
-        Intent intent = new Intent(this, ClinicDetailsActivity.class);
-        intent.putExtra(ClinicDetailsActivity.CLINIC_EXTRA, clinicDto);
-        startActivity(intent);
+        //TODO
     }
 
-    private void goToCreateClinic()
+    private void goToCreateStudy()
     {
         Intent intent = new Intent(this, CreateStudyActivity.class);
         startActivity(intent);
@@ -185,7 +183,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void goToUserSettings()
     {
-
+        //TODO
     }
 
     private void signout()
