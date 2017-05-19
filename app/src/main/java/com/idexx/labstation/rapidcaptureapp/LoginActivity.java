@@ -125,6 +125,7 @@ public class LoginActivity extends AppCompatActivity
 
                     userEntity.setUser(userLoginDto.getUsername());
                     userEntity.setJwtToken(resp.getToken());
+                    userEntity.setRole(resp.getRole());
 
                     UserDao.getInstance().createOrUpdate(userEntity, getApplicationContext());
                     GeneralSettingsDao.getInstance().setUserActive(userEntity, getApplicationContext());

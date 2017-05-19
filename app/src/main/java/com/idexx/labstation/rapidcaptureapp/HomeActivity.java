@@ -4,32 +4,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.idexx.labstation.rapidcaptureapp.adapter.HomeOptionExpandableListAdapter;
 import com.idexx.labstation.rapidcaptureapp.adapter.model.HomeOptionItem;
 import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
-import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
-import com.idexx.labstation.rapidcaptureapp.entity.GeneralSettings;
 import com.idexx.labstation.rapidcaptureapp.entity.User;
 import com.idexx.labstation.rapidcaptureapp.model.ClinicDto;
+import com.idexx.labstation.rapidcaptureapp.util.UserUtils;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity
 {
@@ -45,6 +36,8 @@ public class HomeActivity extends AppCompatActivity
 
     private boolean nameLoaded;
     private boolean clinicsLoaded;
+
+    private User activeUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -63,7 +56,10 @@ public class HomeActivity extends AppCompatActivity
             case LOGOUT:
                 signout();
                 return true;
-            case CREATE_CLINIC:
+            case USER_SETTINGS:
+                goToUserSettings();
+                return true;
+            case CREATE_STUDY:
                 goToCreateClinic();
                 return true;
             default:
@@ -78,18 +74,6 @@ public class HomeActivity extends AppCompatActivity
         clinicsListView = (ListView) findViewById(R.id.homeClinicsListView);
         optionsListView = (ExpandableListView) findViewById(R.id.homeOptionsExpandableListView);
 
-        homeOptionExpandableListAdapter = new HomeOptionExpandableListAdapter(this);
-        optionsListView.setAdapter(homeOptionExpandableListAdapter);
-        optionsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener()
-        {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
-            {
-                HomeOptionItem item = homeOptionExpandableListAdapter.getChild(groupPosition, childPosition);
-                return handleOptionItem(item);
-            }
-        });
-
         clinicsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         clinicsListView.setAdapter(clinicsAdapter);
         clinicsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -99,6 +83,21 @@ public class HomeActivity extends AppCompatActivity
             {
                 ClinicDto selected = clinicsAdapter.getItem(position);
                 goToClinicDetails(selected);
+            }
+        });
+    }
+
+    private void populateOptions()
+    {
+        homeOptionExpandableListAdapter = new HomeOptionExpandableListAdapter(UserUtils.getHomeItemsForRole(this.activeUser.getRole()), this);
+        optionsListView.setAdapter(homeOptionExpandableListAdapter);
+        optionsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener()
+        {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+            {
+                HomeOptionItem item = homeOptionExpandableListAdapter.getChild(groupPosition, childPosition);
+                return handleOptionItem(item);
             }
         });
     }
@@ -147,12 +146,14 @@ public class HomeActivity extends AppCompatActivity
             protected String doInBackground(Object... params)
             {
                 User activeUser = GeneralSettingsDao.getInstance().getActiveUser(getApplicationContext());
+                HomeActivity.this.activeUser = activeUser;
                 return activeUser.getUser();
             }
 
             @Override
             protected void onPostExecute(String s)
             {
+                populateOptions();
                 homeOptionExpandableListAdapter.updateTitle("Welcome back, " + s);
                 nameLoaded = true;
                 checkForDone();
@@ -178,8 +179,13 @@ public class HomeActivity extends AppCompatActivity
 
     private void goToCreateClinic()
     {
-        Intent intent = new Intent(this, CreateClinicActivity.class);
+        Intent intent = new Intent(this, CreateStudyActivity.class);
         startActivity(intent);
+    }
+
+    private void goToUserSettings()
+    {
+
     }
 
     private void signout()

@@ -34,7 +34,7 @@
             android:label=""
             android:theme="@style/AppThemeNoBar">
         </activity>
-        <activity android:name=".CreateClinicActivity">
+        <activity android:name=".CreateStudyActivity">
         </activity>
         <activity
             android:name=".ClinicDetailsActivity"

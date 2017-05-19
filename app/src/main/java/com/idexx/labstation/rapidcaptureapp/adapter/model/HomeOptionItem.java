@@ -5,13 +5,16 @@ package com.idexx.labstation.rapidcaptureapp.adapter.model;
  */
 public enum HomeOptionItem
 {
-    CREATE_CLINIC ("New Clinic"),
-    LOGOUT ("Logout");
+    CREATE_STUDY ("New Study", "admin"),
+    USER_SETTINGS("User Settings", "user"),
+    LOGOUT ("Logout", "user");
 
     public final String label;
+    public final String requiredRole;
 
-    HomeOptionItem(String label)
+    HomeOptionItem(String label, String requiredRole)
     {
         this.label = label;
+        this.requiredRole = requiredRole;
     }
 }

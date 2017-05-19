@@ -14,6 +14,8 @@ public class User extends AbstractEntity
     private String user;
     @DatabaseField(columnName = UserContract.TOKEN_COLUMN)
     private String jwtToken;
+    @DatabaseField(columnName = UserContract.ROLE_COLUMN)
+    private String role;
 
     public String getUser()
     {
@@ -33,5 +35,15 @@ public class User extends AbstractEntity
     public void setJwtToken(String jwtToken)
     {
         this.jwtToken = jwtToken;
+    }
+
+    public String getRole()
+    {
+        return role;
+    }
+
+    public void setRole(String role)
+    {
+        this.role = role;
     }
 }
