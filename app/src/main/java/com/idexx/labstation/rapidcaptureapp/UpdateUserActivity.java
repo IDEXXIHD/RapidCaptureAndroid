@@ -10,10 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.idexx.labstation.rapidcaptureapp.dao.GeneralSettingsDao;
-import com.idexx.labstation.rapidcaptureapp.dao.UserDao;
-import com.idexx.labstation.rapidcaptureapp.entity.User;
-import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
+import com.idexx.labstation.rapidcaptureapp.model.UpdateUserDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserDetailsDto;
 import com.idexx.labstation.rapidcaptureapp.util.TextChangedWatcher;
 import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
@@ -30,7 +27,7 @@ public class UpdateUserActivity extends AppCompatActivity
     private EditText firstNameInput;
     private EditText lastNameInput;
 
-    private boolean passwordsMatch;
+    private boolean passwordsMatch = true;
     private UserDetailsDto activeUser;
 
     @Override
@@ -67,12 +64,12 @@ public class UpdateUserActivity extends AppCompatActivity
         firstNameInput.addTextChangedListener(new ValidatingTextWatcher());
         lastNameInput.addTextChangedListener(new ValidatingTextWatcher());
 
-        passwordConfirmInput.addTextChangedListener(new ValidatingTextWatcher()
+        ValidatingTextWatcher watcher = new ValidatingTextWatcher()
         {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count)
             {
-                if (s.toString().equals(passwordInput.getText().toString()))
+                if (passwordConfirmInput.getText().toString().equals(passwordInput.getText().toString()))
                 {
                     passwordsMatch = true;
                     passwordConfirmInput.setError(null);
@@ -84,7 +81,9 @@ public class UpdateUserActivity extends AppCompatActivity
                 }
                 super.onTextChanged(s, start, before, count);
             }
-        });
+        };
+        passwordInput.addTextChangedListener(watcher);
+        passwordConfirmInput.addTextChangedListener(watcher);
     }
 
     private void findActiveUser()
@@ -123,74 +122,72 @@ public class UpdateUserActivity extends AppCompatActivity
         );
     }
 
+    private String getNullIfEmpty(EditText input)
+    {
+        String val = input.getText().toString();
+        return val.trim().length() == 0 ? null : val.trim();
+    }
+
     private void handleSubmit()
     {
-//        final NewUserDto newUser = new NewUserDto();
-//        newUser.setUsername(userNameInput.getText().toString());
-//        newUser.setEmail(emailInput.getText().toString());
-//        newUser.setPassword(passwordInput.getText().toString());
-//        NewUserDto.UserProfileDto profileDto = new NewUserDto.UserProfileDto();
-//        profileDto.setGivenName(firstNameInput.getText().toString());
-//        profileDto.setFamilyName(lastNameInput.getText().toString());
-//        newUser.setProfile(profileDto);
-//
-//        //noinspection unchecked
-//        new AsyncTask<Map<String, Object>, Object, NetworkActions.ResponseStatus>()
-//        {
-//            @Override
-//            protected NetworkActions.ResponseStatus doInBackground(Map<String, Object>... params)
-//            {
-//                NetworkActions.ResponseStatus responseStatus = NetworkActions.createUser(newUser);
-//                if(responseStatus == NetworkActions.ResponseStatus.SUCCESS)
-//                {
-//                    User user = new User();
-//                    user.setUser(newUser.getUsername());
-//
-//                    user = UserDao.getInstance().createIfNotExists(user, getApplicationContext());
-//                    GeneralSettingsDao.getInstance().setUserActive(user, getApplicationContext());
-//                }
-//                return responseStatus;
-//            }
-//
-//            @Override
-//            protected void onPostExecute(NetworkActions.ResponseStatus responseStatus)
-//            {
-//                if(responseStatus == NetworkActions.ResponseStatus.SUCCESS)
-//                {
-//                    new AlertDialog.Builder(UpdateUserActivity.this)
-//                            .setTitle("Created Successfully")
-//                            .setMessage("User created successfully. You may now log in with your credentials")
-//                            .setPositiveButton("OK", null)
-//                            .setOnDismissListener(new DialogInterface.OnDismissListener()
-//                            {
-//                                @Override
-//                                public void onDismiss(DialogInterface dialog)
-//                                {
-//                                    userCreatedSuccessfully();
-//                                }
-//                            })
-//                            .show();
-//                }
-//                else if (responseStatus == NetworkActions.ResponseStatus.FAILURE)
-//                {
-//                    new AlertDialog.Builder(UpdateUserActivity.this)
-//                            .setTitle("Error")
-//                            .setMessage("Error creating user. Make sure one does not already exist with the given username and e-mail address")
-//                            .setPositiveButton("OK", null)
-//                            .show();
-//                    clearPasswordFields();
-//                }
-//                else if (responseStatus == NetworkActions.ResponseStatus.NOT_AVAILABLE)
-//                {
-//                    new AlertDialog.Builder(UpdateUserActivity.this)
-//                            .setTitle("Server Unavailable")
-//                            .setMessage("Error contacting RapidCapture server.")
-//                            .setPositiveButton("OK", null)
-//                            .show();
-//                    clearPasswordFields();
-//                }
-//            }
-//        }.execute();
+        final UpdateUserDto updatedUser = new UpdateUserDto();
+        updatedUser.setUsername(getNullIfEmpty(userNameInput));
+        updatedUser.setEmail(getNullIfEmpty(emailInput));
+        updatedUser.setPassword(getNullIfEmpty(passwordInput));
+
+        UpdateUserDto.UserProfileDto profileDto = new UpdateUserDto.UserProfileDto();
+        profileDto.setGivenName(getNullIfEmpty(firstNameInput));
+        profileDto.setFamilyName(getNullIfEmpty(lastNameInput));
+        updatedUser.setProfile(profileDto.getGivenName() == null && profileDto.getFamilyName() == null ? null : profileDto);
+
+        //noinspection unchecked
+        new AsyncTask<Map<String, Object>, Object, NetworkActions.ResponseStatus>()
+        {
+            @Override
+            protected NetworkActions.ResponseStatus doInBackground(Map<String, Object>... params)
+            {
+                return NetworkActions.updateUser(updatedUser);
+            }
+
+            @Override
+            protected void onPostExecute(NetworkActions.ResponseStatus responseStatus)
+            {
+                if(responseStatus == NetworkActions.ResponseStatus.SUCCESS)
+                {
+                    new AlertDialog.Builder(UpdateUserActivity.this)
+                            .setTitle("Created Successfully")
+                            .setMessage("User updated successfully.")
+                            .setPositiveButton("OK", null)
+                            .setOnDismissListener(new DialogInterface.OnDismissListener()
+                            {
+                                @Override
+                                public void onDismiss(DialogInterface dialog)
+                                {
+                                    userUpdatedSuccessfully();
+                                }
+                            })
+                            .show();
+                }
+                else if (responseStatus == NetworkActions.ResponseStatus.FAILURE)
+                {
+                    new AlertDialog.Builder(UpdateUserActivity.this)
+                            .setTitle("Error")
+                            .setMessage("Error updating user.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    clearPasswordFields();
+                }
+                else if (responseStatus == NetworkActions.ResponseStatus.NOT_AVAILABLE)
+                {
+                    new AlertDialog.Builder(UpdateUserActivity.this)
+                            .setTitle("Server Unavailable")
+                            .setMessage("Error contacting RapidCapture server.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    clearPasswordFields();
+                }
+            }
+        }.execute();
         //TODO
     }
 
@@ -200,9 +197,9 @@ public class UpdateUserActivity extends AppCompatActivity
         passwordConfirmInput.getText().clear();
     }
 
-    private void userCreatedSuccessfully()
+    private void userUpdatedSuccessfully()
     {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
