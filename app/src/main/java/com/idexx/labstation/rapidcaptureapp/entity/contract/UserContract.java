@@ -16,6 +16,5 @@ public class UserContract implements BaseColumns
             _ID,
             USER_COLUMN,
             TOKEN_COLUMN,
-            ROLE_COLUMN
     };
 }

@@ -26,7 +26,7 @@
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
         <activity
-            android:name=".CreateUserActivity"
+            android:name=".UpdateUserActivity"
             android:theme="@style/AppThemeNoBar">
         </activity>
         <activity
@@ -43,6 +43,8 @@
         <activity
             android:name=".ServerConfigActivity"
             android:theme="@style/AppThemeNoBar">
+        </activity>
+        <activity android:name=".UserSettingsActivity">
         </activity>
     </application>
 

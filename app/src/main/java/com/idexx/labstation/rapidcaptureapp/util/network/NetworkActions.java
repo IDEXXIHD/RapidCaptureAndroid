@@ -6,6 +6,7 @@ import com.idexx.labstation.rapidcaptureapp.model.CreateClinicDto;
 import com.idexx.labstation.rapidcaptureapp.model.LoginResponseDto;
 import com.idexx.labstation.rapidcaptureapp.model.NewUserDto;
 import com.idexx.labstation.rapidcaptureapp.model.StudyDto;
+import com.idexx.labstation.rapidcaptureapp.model.UserDetailsDto;
 import com.idexx.labstation.rapidcaptureapp.model.UserLoginDto;
 
 import java.util.Collections;
@@ -73,6 +74,16 @@ public class NetworkActions
             Log.e(NetworkActions.class.getSimpleName(), "Error creating clinic", e);
             return null;
         }
+    }
+
+    public static UserDetailsDto getUserDetails()
+    {
+        UserDetailsDto mock = new UserDetailsDto();
+        mock.setFirstName("John");
+        mock.setLastName("Smith");
+        mock.setUserEmail("john@smith.com");
+        mock.setUserName("JSmith");
+        return mock;
     }
 
     public static List<StudyDto> getStudies()

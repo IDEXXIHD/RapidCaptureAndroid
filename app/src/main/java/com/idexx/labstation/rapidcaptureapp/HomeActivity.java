@@ -183,7 +183,8 @@ public class HomeActivity extends AppCompatActivity
 
     private void goToUserSettings()
     {
-        //TODO
+        Intent intent = new Intent(this, UpdateUserActivity.class);
+        startActivity(intent);
     }
 
     private void signout()

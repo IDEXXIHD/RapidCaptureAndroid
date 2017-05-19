@@ -169,7 +169,7 @@ public class LoginActivity extends AppCompatActivity
 
     private void onSignup()
     {
-        Intent intent = new Intent(this, CreateUserActivity.class);
+        Intent intent = new Intent(this, UpdateUserActivity.class);
         startActivity(intent);
     }
 
