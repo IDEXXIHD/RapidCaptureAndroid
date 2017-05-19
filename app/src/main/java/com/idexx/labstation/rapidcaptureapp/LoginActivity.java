@@ -23,7 +23,6 @@ import com.idexx.labstation.rapidcaptureapp.util.network.NetworkActions;
 public class LoginActivity extends AppCompatActivity
 {
     private Button loginButton;
-    private Button signupButton;
     private EditText userField;
     private EditText passwordField;
 
@@ -42,7 +41,6 @@ public class LoginActivity extends AppCompatActivity
     private void bindFields()
     {
         loginButton = (Button) findViewById(R.id.loginLoginButton);
-        signupButton = (Button) findViewById(R.id.loginSignupButton);
         userField = (EditText) findViewById(R.id.loginUserEditText);
         passwordField = (EditText) findViewById(R.id.loginPasswordEditText);
     }
@@ -55,14 +53,6 @@ public class LoginActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 checkLoginFields();
-            }
-        });
-        signupButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                onSignup();
             }
         });
     }
