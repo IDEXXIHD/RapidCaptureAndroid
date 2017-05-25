@@ -15,7 +15,7 @@ public class NetworkPaths
     public static final String NEW_USER_PATH = ADMIN_PATH + "user/";
 
     //User management paths
-    public static final String UPDATE_USER_PATH = USER_PATH + "update/";
+    public static final String UPDATE_USER_PATH = USER_PATH;
     public static final String USER_DETAILS_PATH = USER_PATH + "details/";
 
     //API paths

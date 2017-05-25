@@ -47,7 +47,7 @@ public class NetworkActions
 
     public static ResponseStatus updateUser(UpdateUserDto updateUserDto)
     {
-        return postForResponseStatus(NetworkPaths.UPDATE_USER_PATH, updateUserDto, NetworkAccessor.getInstance().getCurrentToken());
+        return putForResponseStatus(NetworkPaths.UPDATE_USER_PATH, updateUserDto, NetworkAccessor.getInstance().getCurrentToken());
     }
 
     /**API Actions**/
@@ -127,6 +127,24 @@ public class NetworkActions
         {
             Log.e(NetworkActions.class.getSimpleName(), "Error creating clinic", e);
             return null;
+        }
+    }
+
+    private static ResponseStatus putForResponseStatus(String path, Object entity, String token)
+    {
+        try
+        {
+            Invocation.Builder builder = NetworkAccessor.getInstance().getWebTarget()
+                    .path(path)
+                    .request();
+            builder = token != null ? builder.header(AUTH_HEADER, JWT + token) : builder;
+            Response resp = builder.put(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+            return resp.getStatus() == Response.Status.OK.getStatusCode() ? ResponseStatus.SUCCESS : ResponseStatus.FAILURE;
+        }
+        catch (Exception e)
+        {
+            Log.e(NetworkActions.class.getSimpleName(), "Error creating clinic", e);
+            return ResponseStatus.NOT_AVAILABLE;
         }
     }
 
