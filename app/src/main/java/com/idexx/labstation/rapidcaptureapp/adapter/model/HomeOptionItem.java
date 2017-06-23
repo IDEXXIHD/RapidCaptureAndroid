@@ -5,16 +5,16 @@ package com.idexx.labstation.rapidcaptureapp.adapter.model;
  */
 public enum HomeOptionItem
 {
-    CREATE_STUDY ("New Study", "admin"),
-    USER_SETTINGS("User Settings", "user"),
-    LOGOUT ("Logout", "user");
+    CREATE_STUDY ("New Study", "create studies"),
+    USER_SETTINGS("User Settings", "default"),
+    LOGOUT ("Logout", "default");
 
     public final String label;
-    public final String requiredRole;
+    public final String requiredPermission;
 
-    HomeOptionItem(String label, String requiredRole)
+    HomeOptionItem(String label, String requiredPermission)
     {
         this.label = label;
-        this.requiredRole = requiredRole;
+        this.requiredPermission = requiredPermission;
     }
 }

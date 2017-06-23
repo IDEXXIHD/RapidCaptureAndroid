@@ -1,6 +1,7 @@
 package com.idexx.labstation.rapidcaptureapp.util;
 
 import com.idexx.labstation.rapidcaptureapp.adapter.model.HomeOptionItem;
+import com.idexx.labstation.rapidcaptureapp.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,36 +11,28 @@ import java.util.List;
  */
 public class UserUtils
 {
-    public static boolean userCan(String userRole, String requiredRole)
+    public static boolean userCan(User user, String requiredRole)
     {
-        return mapRoleToInt(userRole) <= mapRoleToInt(requiredRole);
+        for(String perm : user.getPermissions())
+        {
+            if(requiredRole.equalsIgnoreCase("default") || perm.equalsIgnoreCase(requiredRole))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public static HomeOptionItem[] getHomeItemsForRole(String userRole)
+    public static HomeOptionItem[] getItemsForUser(User user)
     {
         List<HomeOptionItem> list = new ArrayList<>();
         for(HomeOptionItem item : HomeOptionItem.values())
         {
-            if(UserUtils.userCan(userRole, item.requiredRole))
+            if(UserUtils.userCan(user, item.requiredPermission))
             {
                 list.add(item);
             }
         }
         return list.toArray(new HomeOptionItem[0]);
-    }
-
-    private static int mapRoleToInt(String role)
-    {
-        switch (role.toLowerCase())
-        {
-            case "root":
-                return 0;
-            case "admin":
-                return 1;
-            case "user":
-                return 2;
-            default:
-                return Integer.MAX_VALUE;
-        }
     }
 }

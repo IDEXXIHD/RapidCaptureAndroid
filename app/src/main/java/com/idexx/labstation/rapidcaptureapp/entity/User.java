@@ -1,6 +1,7 @@
 package com.idexx.labstation.rapidcaptureapp.entity;
 
 import com.idexx.labstation.rapidcaptureapp.entity.contract.UserContract;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -14,8 +15,8 @@ public class User extends AbstractEntity
     private String user;
     @DatabaseField(columnName = UserContract.TOKEN_COLUMN)
     private String jwtToken;
-    @DatabaseField(columnName = UserContract.ROLE_COLUMN)
-    private String role;
+    @DatabaseField(dataType = DataType.SERIALIZABLE, columnName = UserContract.PERMISSIONS_COLUMN)
+    private String[] permissions;
 
     public String getUser()
     {
@@ -37,13 +38,13 @@ public class User extends AbstractEntity
         this.jwtToken = jwtToken;
     }
 
-    public String getRole()
+    public String[] getPermissions()
     {
-        return role;
+        return permissions;
     }
 
-    public void setRole(String role)
+    public void setPermissions(String[] permissions)
     {
-        this.role = role;
+        this.permissions = permissions;
     }
 }

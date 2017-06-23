@@ -42,12 +42,12 @@ public class NetworkActions
 
     public static UserDetailsDto getUserDetails()
     {
-        return getForType(NetworkPaths.USER_DETAILS_PATH, UserDetailsDto.class, NetworkAccessor.getInstance().getCurrentToken());
+        return getForType(NetworkPaths.USER_PATH, UserDetailsDto.class, NetworkAccessor.getInstance().getCurrentToken());
     }
 
     public static ResponseStatus updateUser(UpdateUserDto updateUserDto)
     {
-        return putForResponseStatus(NetworkPaths.UPDATE_USER_PATH, updateUserDto, NetworkAccessor.getInstance().getCurrentToken());
+        return putForResponseStatus(NetworkPaths.USER_PATH, updateUserDto, NetworkAccessor.getInstance().getCurrentToken());
     }
 
     /**API Actions**/
@@ -71,7 +71,7 @@ public class NetworkActions
 
     public static ResponseStatus createUser(UpdateUserDto user)
     {
-        return postForResponseStatus(NetworkPaths.NEW_USER_PATH, user, NetworkAccessor.getInstance().getCurrentToken());
+        return postForResponseStatus(NetworkPaths.USER_PATH, user, NetworkAccessor.getInstance().getCurrentToken());
     }
 
     /**Helpers**/

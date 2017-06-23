@@ -6,7 +6,7 @@ package com.idexx.labstation.rapidcaptureapp.model;
 public class LoginResponseDto extends BaseDto
 {
     private String token;
-    private String role;
+    private String[] permissions;
 
     public String getToken()
     {
@@ -18,13 +18,13 @@ public class LoginResponseDto extends BaseDto
         this.token = token;
     }
 
-    public String getRole()
+    public String[] getPermissions()
     {
-        return role;
+        return permissions;
     }
 
-    public void setRole(String role)
+    public void setPermissions(String[] permissions)
     {
-        this.role = role;
+        this.permissions = permissions;
     }
 }

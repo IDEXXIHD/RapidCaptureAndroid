@@ -89,7 +89,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void populateOptions()
     {
-        homeOptionExpandableListAdapter = new HomeOptionExpandableListAdapter(UserUtils.getHomeItemsForRole(this.activeUser.getRole()), this);
+        homeOptionExpandableListAdapter = new HomeOptionExpandableListAdapter(UserUtils.getItemsForUser(this.activeUser), this);
         optionsListView.setAdapter(homeOptionExpandableListAdapter);
         optionsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener()
         {
