@@ -13,11 +13,18 @@ public class UserUtils
 {
     public static boolean userCan(User user, String requiredRole)
     {
-        for(String perm : user.getPermissions())
+        if(requiredRole.equalsIgnoreCase("default"))
         {
-            if(requiredRole.equalsIgnoreCase("default") || perm.equalsIgnoreCase(requiredRole))
+            return true;
+        }
+        else
+        {
+            for (String perm : user.getPermissions())
             {
-                return true;
+                if (perm.equalsIgnoreCase(requiredRole))
+                {
+                    return true;
+                }
             }
         }
         return false;
